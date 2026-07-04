@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KeprokScan – Deteksi Kematangan Jeruk Keprok</title>
+  <meta name="description"
+    content="KeprokScan: Sistem deteksi kematangan Jeruk Keprok (Citrus reticulata) berbasis AI menggunakan YOLOv8. Deteksi real-time akurat untuk jeruk keprok lokal Indonesia." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+  <!-- ========== NAVBAR ========== -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-container">
+      <a href="#beranda" class="nav-logo">
+        <span class="logo-icon">🍊</span>
+        <span class="logo-text">KeprokScan</span>
+      </a>
+    </div>
+  </nav>
+
+  <!-- ========== HERO SECTION ========== -->
+  <section class="hero" id="beranda">
+    <div class="hero-content">
+      <h1 class="hero-title">
+        Deteksi Kematangan <span class="hero-highlight">Jeruk Keprok</span>
+      </h1>
+      <p class="hero-subtitle">
+        Sistem cerdas berbasis <strong>YOLOv8</strong> untuk mendeteksi tingkat kematangan<br />
+        <strong>Jeruk Keprok</strong> (<em>Citrus reticulata</em>) secara real-time
+      </p>
+    </div>
+  </section>
+
+  <!-- ========== DETEKSI SECTION ========== -->
+  <section class="deteksi-section" id="deteksi">
+    <div class="container">
+
+      <!-- Action Bar -->
+      <div class="action-bar">
+        <div class="model-status" id="model-status">
+          <span class="status-dot"></span>
+          <span id="status-text">Memuat Model...</span>
+        </div>
+        <div class="action-buttons">
+          <button class="btn btn-primary" id="btn-upload" title="Unggah gambar dari perangkat Anda">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="17 8 12 3 7 8" />
+              <line x1="12" y1="3" x2="12" y2="15" />
+            </svg>
+            Unggah Gambar
+          </button>
+          <button class="btn btn-secondary" id="btn-kamera" title="Aktifkan kamera real-time">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M23 7 16 12 23 17z" />
+              <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
+            </svg>
+            Kamera Real-time
+          </button>
+        </div>
+        <input type="file" id="file-input" accept="image/*" hidden />
+      </div>
+
+      <!-- Main Panel -->
+      <div class="main-panel">
+
+        <!-- Left: Canvas / Drop Zone -->
+        <div class="canvas-panel" id="canvas-panel">
+          <div class="dropzone" id="dropzone">
+            <canvas id="detection-canvas" hidden></canvas>
+            <video id="camera-feed" autoplay playsinline hidden></video>
+            <canvas id="overlay-canvas" hidden></canvas>
+            <div class="dropzone-placeholder" id="dropzone-placeholder">
+              <div class="drop-icon-wrapper">
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none"
+                  stroke="#e8a87c" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="3" width="18" height="18" rx="3" />
+                  <circle cx="8.5" cy="8.5" r="1.5" />
+                  <polyline points="21 15 16 10 5 21" />
+                </svg>
+              </div>
+              <p class="drop-title">Seret &amp; Lepas Gambar</p>
+              <p class="drop-sub">atau klik tombol <strong>Unggah Gambar</strong> di atas</p>
+            </div>
+          </div>
+          <!-- Camera controls -->
+          <div class="camera-controls" id="camera-controls" hidden>
+            <button class="btn btn-danger btn-sm" id="btn-stop-camera">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                <rect x="3" y="3" width="18" height="18" rx="2" />
+              </svg>
+              Stop Kamera
+            </button>
+          </div>
+          <!-- Hapus Gambar controls -->
+          <div class="image-controls" id="image-controls" hidden>
+            <button class="btn btn-danger btn-sm" id="btn-hapus-gambar" title="Hapus gambar dan reset tampilan">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="3 6 5 6 21 6" />
+                <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                <path d="M10 11v6" />
+                <path d="M14 11v6" />
+                <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+              </svg>
+              Hapus Gambar
+            </button>
+          </div>
+        </div>
+
+        <!-- Right: Result Panel -->
+        <div class="result-panel" id="result-panel">
+          <div class="result-header">
+            <span class="result-icon">🍊</span>
+            <h2 class="result-title">Hasil Deteksi Keprok</h2>
+          </div>
+          <div class="result-divider"></div>
+          <div class="result-body" id="result-body">
+            <p class="result-empty" id="result-empty">Belum ada deteksi...</p>
+            <div class="result-items" id="result-items" hidden></div>
+          </div>
+          <!-- Summary Stats -->
+          <div class="result-stats" id="result-stats" hidden>
+            <div class="stat-item">
+              <span class="stat-label">Total Objek</span>
+              <span class="stat-value" id="stat-total">0</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Waktu Inferensi</span>
+              <span class="stat-value" id="stat-time">–</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+
+  <!-- ========== FOOTER ========== -->
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div class="footer-logo">
+        <span class="logo-icon">🍊</span>
+        <span class="logo-text">KeprokScan</span>
+      </div>
+      <p class="footer-copy">© 2026 KeprokScan — Sistem Deteksi Kematangan Jeruk Keprok berbasis YOLOv8</p>
+    </div>
+  </footer>
+
+  <!-- Toast Notification -->
+  <div class="toast" id="toast" aria-live="polite"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.20.0/dist/tf.min.js"></script>
+  <script src="app.js"></script>
+</body>
+
+</html>
